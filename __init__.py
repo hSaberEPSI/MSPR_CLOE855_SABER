@@ -80,7 +80,7 @@ def enregistrer_client():
 @app.route('/fiche_nom/', methods=['GET', 'POST'])
 def fiche_par_nom():
     if not session.get('user_authentifie'):
-        return redirect(url_for('authentification_user'))
+        return redirect(url_for('authentification'))
 
     data = []
     if request.method == 'POST':
