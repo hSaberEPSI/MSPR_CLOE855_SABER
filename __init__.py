@@ -8,6 +8,12 @@ import sqlite3
 app = Flask(__name__)                                                                                                                  
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessions
 
+def est_authentifie_admin():
+    return session.get('admin_auth')
+
+def est_authentifie_user():
+    return session.get('user_auth')
+
 # Fonction pour créer une clé "authentifie" dans la session utilisateur
 def est_authentifie():
     return session.get('authentifie')
@@ -18,7 +24,7 @@ def hello_world():
 
 @app.route('/lecture')
 def lecture():
-    if not est_authentifie():
+    if not est_authentifie_admin():
         # Rediriger vers la page d'authentification si l'utilisateur n'est pas authentifié
         return redirect(url_for('authentification'))
 
@@ -30,11 +36,11 @@ def authentification():
     if request.method == 'POST':
         # Vérifier les identifiants
         if request.form['username'] == 'admin' and request.form['password'] == 'password': # password à cacher par la suite
-            session['authentifie'] = True
+            session['admin_auth'] = True
             # Rediriger vers la route lecture après une authentification réussie
             return redirect(url_for('lecture'))
         elif request.form['username'] == 'user' and request.form['password'] == '12345':
-            session['authentifie'] = True
+            session['user_auth'] = True
             # Rediriger vers la route lecture après une authentification réussie
             return redirect(url_for('fiche_par_nom'))
         else:
@@ -83,7 +89,7 @@ def enregistrer_client():
 
 @app.route('/fiche_nom/', methods=['GET', 'POST'])
 def fiche_par_nom():
-    if not est_authentifie():
+    if not est_authentifie_user():
         return redirect(url_for('authentification'))
 
     data = []
@@ -99,6 +105,16 @@ def fiche_par_nom():
             return f"<h3>Erreur lors de la recherche : {e}</h3>"
 
     return render_template('fiche_par_nom.html', data=data)
-                                                                                                                                  
+
+@app.route('/logout_admin')
+def logout_admin():
+    session.pop('admin_auth', None)
+    return redirect(url_for('authentification'))
+
+@app.route('/logout_user')
+def logout_user():
+    session.pop('user_auth', None)
+    return redirect(url_for('authentification'))
+                                                                                                                             
 if __name__ == "__main__":
-  app.run(debug=True)
+    app.run(debug=True)
