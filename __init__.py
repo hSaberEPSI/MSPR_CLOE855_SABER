@@ -84,12 +84,15 @@ def fiche_par_nom():
 
     data = []
     if request.method == 'POST':
-        nom = request.form['nom']
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM clients WHERE nom = ?', (nom,))
-        data = cursor.fetchall()
-        conn.close()
+        try:
+            nom = request.form['nom']
+            conn = sqlite3.connect('database.db')
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM clients WHERE nom = ?', (nom,))
+            data = cursor.fetchall()
+            conn.close()
+        except Exception as e:
+            return f"<h3>Erreur lors de la recherche : {e}</h3>"
 
     return render_template('fiche_par_nom.html', data=data)
                                                                                                                                   
